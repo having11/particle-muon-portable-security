@@ -55,7 +55,9 @@ struct DeviceReport
 };
 
 void updateAdvData(void);
+void updateOled(DeviceReport *);
 AQSReportType getAirQuality(void);
+const char *getAqsString(AQSReportType);
 
 void setup()
 {
@@ -139,9 +141,50 @@ void updateAdvData()
   };
 #endif
 
+  updateOled(&reportData);
+
   data = new BleAdvertisingData();
   data->appendCustomData(reinterpret_cast<uint8_t *>(&reportData), sizeof(reportData));
   BLE.advertise(data);
+}
+
+void updateOled(DeviceReport *report)
+{
+  char buf[32];
+  buf[31] = '\0';
+
+  for (auto i = 0; i < report->valueLen; i++)
+  {
+    auto &entry = report->values[i];
+    switch (entry.type)
+    {
+    case DeviceReportType::AIR_QUALITY:
+    {
+      snprintf(buf, 32, "AQS: %s", getAqsString(static_cast<AQSReportType>(entry.value)));
+      break;
+    }
+
+    case DeviceReportType::PIR:
+    {
+      snprintf(buf, 32, "PIR: %s", entry.value ? "Detected" : "None");
+      break;
+    }
+
+    case DeviceReportType::MAGNET:
+    {
+      snprintf(buf, 32, "MAGNET: %s", entry.value ? "Closed" : "Open");
+      break;
+    }
+    case DeviceReportType::SOUND_PEAK:
+    {
+      snprintf(buf, 32, "SOUND: %s", entry.value ? "Above" : "Below");
+      break;
+    }
+    }
+
+    SeeedOled.setTextXY(i, 0);
+    SeeedOled.putString(buf);
+  }
 }
 
 AQSReportType getAirQuality()
@@ -169,4 +212,23 @@ AQSReportType getAirQuality()
   }
 
   return AQSReportType::NONE;
+}
+
+const char *getAqsString(AQSReportType type)
+{
+  switch (type)
+  {
+  case AQSReportType::NONE:
+    return "None";
+  case AQSReportType::FRESH:
+    return "Fresh";
+  case AQSReportType::LOW:
+    return "Low";
+  case AQSReportType::HIGH:
+    return "High";
+  case AQSReportType::DANGER:
+    return "Danger";
+  default:
+    return "Error";
+  }
 }
