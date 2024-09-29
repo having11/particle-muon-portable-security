@@ -3,7 +3,8 @@
     "C_Cpp.default.configurationProvider": "particle.particle-vscode-core",
     "files.associations": {
       "*.ino": "cpp",
-      "ios": "cpp"
+      "ios": "cpp",
+      "new": "cpp"
     },
     "particle.firmwareVersion": "5.8.0",
     "particle.targetPlatform": "p2",
