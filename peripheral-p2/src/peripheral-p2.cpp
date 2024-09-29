@@ -18,6 +18,8 @@ SYSTEM_MODE(AUTOMATIC);
 // Run the application and system concurrently in separate threads
 SYSTEM_THREAD(ENABLED);
 
+uint32_t lastUpdate = 0;
+
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
 AirQualitySensor aqSensor(AQS_PIN);
 BleAdvertisingData *data;
@@ -84,12 +86,17 @@ void setup()
   SeeedOled.sendCommand(0xA1);
 
   BLE.setDeviceName("SEC_MONITOR");
-  BLE.setAdvertisingInterval(1600);
+  BLE.setAdvertisingInterval(800);
   BLE.advertise(data);
 }
 
 void loop()
 {
+  if (millis() - lastUpdate >= 2400)
+  {
+    lastUpdate = millis();
+    updateAdvData();
+  }
 }
 
 void updateAdvData()
