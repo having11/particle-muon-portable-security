@@ -84,12 +84,14 @@ void loop()
     BleScanFilter filter;
     filter.deviceName("SEC_MONITOR");
     auto results = BLE.scanWithFilter(filter);
+    Log.info("Found %d scan results", results.size());
 
     for (auto &result : results)
     {
       auto advData = result.advertisingData();
       DeviceReport rpt;
       advData.customData(reinterpret_cast<uint8_t *>(&rpt), sizeof(rpt));
+      Log.info("Got report from device ID=%d containing %d entries", rpt.deviceId, rpt.valueLen);
 
       logSecurityReport(&rpt);
     }
@@ -149,7 +151,7 @@ void logSecurityReport(DeviceReport *report)
       variant["loc"] = locVariant;
     }
 
-    Log.info("Setting ledger to %s", variant.toString().c_str());
+    Log.info("Setting ledger");
     ledger.set(variant, Ledger::SetMode::MERGE);
   }
 }

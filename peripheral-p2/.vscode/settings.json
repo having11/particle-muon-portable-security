@@ -8,5 +8,5 @@
     },
     "particle.firmwareVersion": "5.8.0",
     "particle.targetPlatform": "p2",
-    "particle.targetDevice": "photon-2"
+    "particle.targetDevice": "photon2-0"
 }

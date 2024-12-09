@@ -3,14 +3,14 @@
 #include "Air_Quality_Sensor.h"
 #include "SeeedOLED.h"
 
-#define ENABLE_PIR 1
+#define ENABLE_PIR 0
 #define ENABLE_MAG 0
 #define ENABLE_MIC 1
 
 #define AQS_PIN D2
 #define MIC_PIN A0
 #define PIR_MAG_PIN D5
-#define DEVICE_SER_ID 1
+#define DEVICE_SER_ID 2
 
 // Let Device OS manage the connection to the Particle Cloud
 SYSTEM_MODE(AUTOMATIC);
@@ -87,9 +87,7 @@ void setup()
   SeeedOled.sendCommand(0xC9);
   SeeedOled.sendCommand(0xA1);
 
-  BLE.setDeviceName("SEC_MONITOR");
   BLE.setAdvertisingInterval(800);
-  BLE.advertise(data);
 }
 
 void loop()
@@ -137,14 +135,16 @@ void updateAdvData()
 #if ENABLE_MIC
   reportData.values[1 + ENABLE_PIR + ENABLE_MAG] = {
       .type = DeviceReportType::SOUND_PEAK,
-      .value = static_cast<uint8_t>(analogRead(MIC_PIN) >= 512),
+      .value = static_cast<uint8_t>(analogRead(MIC_PIN) >= 2048),
   };
 #endif
 
   updateOled(&reportData);
 
   data = new BleAdvertisingData();
-  data->appendCustomData(reinterpret_cast<uint8_t *>(&reportData), sizeof(reportData));
+  data->appendLocalName("SEC_MONITOR");
+  data->append(BleAdvertisingDataType::MANUFACTURER_SPECIFIC_DATA, reinterpret_cast<uint8_t *>(&reportData), sizeof(reportData));
+  BLE.setAdvertisingInterval(800);
   BLE.advertise(data);
 }
 
