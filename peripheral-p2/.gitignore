@@ -3,6 +3,7 @@
 *.pem
 
 nul
+.vscode
 
 # Ignore build results and bundles
 *.bin
